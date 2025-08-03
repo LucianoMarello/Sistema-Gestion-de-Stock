@@ -11,10 +11,13 @@ namespace Sistema_Gestion_de_Stock.Repositorios
     public class RepositorioRubro : IRepositorio<Rubro>
     {
         private List<Rubro> rubros = new List<Rubro>();
-        private string archivo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "rubros.txt");
+        private static readonly string carpetaDatos = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Datos");
+        private string archivo = Path.Combine(carpetaDatos, "rubros.txt");
+
 
         public RepositorioRubro()
         {
+            Directory.CreateDirectory(carpetaDatos);
             CargarDesdeArchivo();
         }
 

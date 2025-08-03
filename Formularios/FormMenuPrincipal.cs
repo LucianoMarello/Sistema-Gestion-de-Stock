@@ -4,23 +4,41 @@ namespace Sistema_Gestion_de_Stock
 {
     public partial class FormMenuPrincipal : Form
     {
+        private Form formularioActivo = null;
+
         public FormMenuPrincipal()
         {
             InitializeComponent();
             IsMdiContainer = true;
         }
 
-        private void gestionProductosToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormProductos form = new FormProductos();
-            AbrirFormulario(form);
-        }
-
         private void AbrirFormulario(Form formHijo)
         {
-            formHijo.MdiParent = this;
-            formHijo.WindowState = FormWindowState.Maximized;
-            formHijo.Show();
+            // Cierra el formulario activo si ya hay uno abierto
+            if (formularioActivo != null)
+                formularioActivo.Close();
+
+            formularioActivo = formHijo;
+            formularioActivo.MdiParent = this;
+            formularioActivo.FormBorderStyle = FormBorderStyle.None;
+            formularioActivo.Dock = DockStyle.Fill;
+            formularioActivo.Show();
+        }
+
+        private void gestionProductosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirFormulario(new FormProductos());
+        }
+
+        private void gestorRubrosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirFormulario(new FormRubros());
+        }
+
+        private void gestorProveedoresToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirFormulario(new FormProveedores());
         }
     }
+
 }

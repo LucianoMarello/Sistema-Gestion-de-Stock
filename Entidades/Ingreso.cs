@@ -9,8 +9,8 @@ namespace Sistema_Gestion_de_Stock.Entidades
     public class Ingreso : Movimiento
     {
         public int IdProveedor { get; set; }
-        public DateTime FechaVencimiento { get; set; }
         public double PrecioCompra {  get; set; }
+        public DateTime FechaVencimiento { get; set; }
 
         public Ingreso(int idMovimiento, int idProducto, int cantidad, int idProveedor, DateTime fechaVencimiento, double precioCompra)
             : base(idMovimiento, idProducto, cantidad)
@@ -22,7 +22,7 @@ namespace Sistema_Gestion_de_Stock.Entidades
 
         public override void AplicarMovimiento()
         {
-            Lote nuevoLote = new Lote(IdProducto, Cantidad, FechaVencimiento, PrecioCompra);
+            Lote nuevoLote = new Lote(Cantidad, PrecioCompra, FechaVencimiento);
             //hacer que busque el producto correspondiente dentro del repositorio y lo guarda en la lista
         }
     }

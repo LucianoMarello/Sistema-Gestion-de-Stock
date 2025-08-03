@@ -30,7 +30,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
         {
             var rubros = repoRubros.Listar();
             cmbRubros.DataSource = rubros;
-            cmbRubros.DisplayMember = "Nombre";
+            cmbRubros.DisplayMember = "Categoria";
             cmbRubros.ValueMember = "IdRubro";
         }
 
@@ -56,7 +56,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
                 var rubro = repoRubros.BuscarPorId(p.IdRubro);
                 string nombreRubro = rubro != null ? rubro.Categoria: "Sin Rubro";
 
-                int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.Stock, nombreRubro, p.Disponible ? "Sí" : "No");
+                int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.CalcularStockTotal(), nombreRubro, p.Disponible ? "Sí" : "No");
 
                 if (!p.Disponible)
                 {
@@ -75,9 +75,9 @@ namespace Sistema_Gestion_de_Stock.Formularios
                 GenerarNuevoId(),
                 txtNombre.Text,
                 txtDescripcion.Text,
-                (int)nudCantidad.Value,
                 (double)nudPrecio.Value,
-                ((Rubro)cmbRubros.SelectedItem).IdRubro
+                ((Rubro)cmbRubros.SelectedItem).IdRubro,
+                true
                 );
 
             repoProductos.Agregar(nuevo);
@@ -98,8 +98,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
             producto.Nombre = txtNombre.Text;
             producto.Descripcion = txtDescripcion.Text;
-            producto.Stock = (int)nudCantidad.Value;
-            producto.PrecioVenta = (int)nudPrecio.Value;
+            producto.PrecioVenta = (int)nudPrecio.Value * 1.5;
             producto.IdRubro = ((Rubro)cmbRubros.SelectedItem).IdRubro;
 
             repoProductos.Modificar(producto);
@@ -138,7 +137,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
             txtNombre.Text = producto.Nombre;
             txtDescripcion.Text = producto.Descripcion;
-            nudCantidad.Value = producto.Stock;
+            nudCantidad.Value = producto.CalcularStockTotal();
             nudPrecio.Value = (decimal)producto.PrecioVenta;
 
             var rubro = repoRubros.BuscarPorId(producto.IdRubro);

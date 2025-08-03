@@ -8,14 +8,12 @@ namespace Sistema_Gestion_de_Stock.Entidades
 {
     public class Lote
     {
-        public int IdLote { get; set; }
         public int Cantidad { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public double PrecioCompra {  get; set; }
 
-        public Lote(int idProd, int cant, DateTime vencimiento, double precio)
+        public Lote(int cant, double precio, DateTime vencimiento)
         {
-            IdLote = 0; //Hacer un generador o no es necesario que tenga ID?
             Cantidad = cant;
             FechaVencimiento = vencimiento;
             PrecioCompra = precio;

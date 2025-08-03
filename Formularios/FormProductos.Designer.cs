@@ -105,6 +105,7 @@
             // nudCantidad
             // 
             nudCantidad.Location = new Point(545, 83);
+            nudCantidad.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
             nudCantidad.Name = "nudCantidad";
             nudCantidad.Size = new Size(132, 27);
             nudCantidad.TabIndex = 17;
@@ -191,6 +192,7 @@
             // nudPrecio
             // 
             nudPrecio.Location = new Point(545, 37);
+            nudPrecio.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             nudPrecio.Name = "nudPrecio";
             nudPrecio.Size = new Size(132, 27);
             nudPrecio.TabIndex = 7;
@@ -246,7 +248,7 @@
             Controls.Add(gbDatos);
             Controls.Add(dgvProductos);
             Name = "FormProductos";
-            Text = "FormProductos";
+            Text = "Gestor de Productos";
             ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
             gbDatos.ResumeLayout(false);
             gbDatos.PerformLayout();
