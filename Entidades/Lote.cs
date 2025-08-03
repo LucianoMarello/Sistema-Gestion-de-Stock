@@ -8,26 +8,21 @@ namespace Sistema_Gestion_de_Stock.Entidades
 {
     public class Lote
     {
-        public int IdProducto { get; set; }
+        public int IdLote { get; set; }
         public int Cantidad { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public double PrecioCompra {  get; set; }
 
-        public Lote(int id, int cant, DateTime vencimiento, double precio)
+        public Lote(int idProd, int cant, DateTime vencimiento, double precio)
         {
-            IdProducto = id;
+            IdLote = 0; //Hacer un generador o no es necesario que tenga ID?
             Cantidad = cant;
             FechaVencimiento = vencimiento;
             PrecioCompra = precio;
         }
 
-        public bool EstaVencido()
-        {
-            if (FechaVencimiento < DateTime.Now)
-            {
-                return true;
-            }
-            return false;
-        }
+        public bool EstaVencido => FechaVencimiento < DateTime.Today;
+
+        public bool EstaPorVencer => FechaVencimiento <= DateTime.Today.AddDays(7);
     }
 }

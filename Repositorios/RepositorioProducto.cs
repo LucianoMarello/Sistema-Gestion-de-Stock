@@ -1,4 +1,5 @@
 ﻿using Sistema_Gestion_de_Stock.Entidades;
+using Sistema_Gestion_de_Stock.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace Sistema_Gestion_de_Stock.Repositorios
 {
-    public class RepositorioProducto : IRepositorio<Producto>
+    public class 
+        RepositorioProducto : IRepositorio<Producto>
     {
         public List<Producto> productos = new List<Producto>();
         private string archivo = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "productos.txt");
@@ -23,7 +25,7 @@ namespace Sistema_Gestion_de_Stock.Repositorios
             GuardarEnArchivo();
         }
         
-        public void Modificar(int id, Producto nuevoProducto)
+        public void Modificar(Producto nuevoProducto)
         {
             var existe = productos.FirstOrDefault(x => x.IdProducto == nuevoProducto.IdProducto);
             if (existe != null)
@@ -33,8 +35,7 @@ namespace Sistema_Gestion_de_Stock.Repositorios
                 existe.PrecioVenta = nuevoProducto.PrecioVenta;
                 existe.Stock = nuevoProducto.Stock;
                 existe.IdRubro = nuevoProducto.IdRubro;
-                existe.Disponible = nuevoProducto.Disponible;
-                existe.ListaLotes = nuevoProducto.ListaLotes;
+                GuardarEnArchivo();
             }
         }
 
@@ -43,14 +44,22 @@ namespace Sistema_Gestion_de_Stock.Repositorios
             var producto = productos.FirstOrDefault(x => x.IdProducto == id);
             if (producto != null)
             {
-                productos.Remove(producto);
+                producto.Disponible = false;
                 GuardarEnArchivo();
             }
         }
 
         public List<Producto> Listar()
         {
+            return productos.ToList();
+        }
 
+        public Producto BuscarPorId(int id)
+        {
+            var productoBuscado = productos.FirstOrDefault(x => x.IdProducto == id);
+            if (productoBuscado == null)
+                throw new ObjetoNoEncontradoException($"No existe un Producto con ID {id}.");
+            return productoBuscado;
         }
 
         private void CargarDesdeArchivo()
@@ -81,10 +90,10 @@ namespace Sistema_Gestion_de_Stock.Repositorios
                     descripcion,
                     cantidad,
                     precio,
-                    idRubro,
-                    disponible,
-                    idsLotes
+                    idRubro
                 );
+                p.Disponible = disponible;
+                p.ListaLotes = idsLotes;
                 productos.Add(p);
             }
         }

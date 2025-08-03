@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sistema_Gestion_de_Stock.Repositorios;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,32 +14,35 @@ namespace Sistema_Gestion_de_Stock.Entidades
         public string Descripcion { get; set; }
         public int Stock { get; set; }
         public double PrecioVenta { get; set; }
-        public int IdRubro { get; set; } //asi o hacerlo de tipo rubro?
+        public int IdRubro { get; set; }
         public bool Disponible { get; set; }
         public List<int> ListaLotes { get; set; }
 
-        public Producto(int id, string nom, string desc, int cant, double precio, int rubro, bool disponible, List<int> listaIds)
+        public Producto(int id, string nom, string descripcion, int stock, double precioUnitario, int idRubro)
         {
             IdProducto = id;
             Nombre = nom;
-            Descripcion = desc;
-            Stock = cant;
-            PrecioVenta = precio * 1.5;
-            IdRubro = rubro;
-            Disponible = disponible;
-            ListaLotes = listaIds;
+            Descripcion = descripcion;
+            Stock = stock;
+            PrecioVenta = precioUnitario;
+            IdRubro = idRubro;
+            Disponible = true;
+            ListaLotes = new List<int>();
         }
 
-        public void Vencimiento() //Donde lo muestro? / donde lo llamo?
-        {
-            foreach(Lote lote in ListaLotes)
-            {
-                if (lote.EstaVencido())
-                {
-                    ListaLotes.Remove(lote);
+        //FALTAN METODOS SOBRE EL VENCIMIENTO
 
-                }
-            }
+        public void CalcularPrecioVenta(double precioCompra)
+        {
+            PrecioVenta = 1.5 * precioCompra;
+        }
+
+        public int CalcularStockTotal(RepositorioLotes repoLotes)
+        {
+            return ListaLotes
+                .Select(id => repoLotes.BuscarPorId(id))
+                .Where(l => l != null)
+                .Sum(l => l.Cantidad);
         }
     }
 }

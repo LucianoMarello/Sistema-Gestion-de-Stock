@@ -9,7 +9,7 @@ namespace Sistema_Gestion_de_Stock.Repositorios
     public interface IRepositorio<T>
     {
         void Agregar(T obj);
-        void Modificar(int id, T obj);
+        void Modificar(T obj);
         void Eliminar(int id);
         List<T> Listar();
         T BuscarPorId(int id);
