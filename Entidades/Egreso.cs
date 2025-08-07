@@ -11,16 +11,30 @@ namespace Sistema_Gestion_de_Stock.Entidades
     {
         public TipoEgreso Tipo { get; set; }
 
-        public Egreso(int idMovimiento, int idProducto, int cantidad, TipoEgreso tipo)
-            : base(idMovimiento, idProducto, cantidad)
+        public Egreso(int idMovimiento, int idProducto, DateTime fecha, int cantidad, TipoEgreso tipo)
+            : base(idMovimiento, idProducto, fecha, cantidad)
         {
             Tipo = tipo;
         }
 
-        public override void AplicarMovimiento()
+        public override void AplicarMovimiento(Producto producto)
         {
-            //buscar el producto y lote y bajar la cantidad
-            //ordenar los lotes por vencimientos
+            int restante = Cantidad;
+
+            var lotesOrdenados = producto.ListaLotes
+                .OrderBy(l => l.FechaVencimiento != new DateTime(1900, 1, 1)) // los sin vencimiento van últimos
+                .ThenBy(l => l.FechaVencimiento)
+                .ToList();
+
+            foreach (var lote in lotesOrdenados)
+            {
+                int aDescontar = Math.Min(lote.Cantidad, restante);
+                lote.Cantidad -= aDescontar;
+                restante -= aDescontar;
+            }
+
+            producto.ListaLotes.RemoveAll(l => l.Cantidad == 0);
+            producto.ActualizarPrecioVentaDesdeLotes();
         }
     }
 }

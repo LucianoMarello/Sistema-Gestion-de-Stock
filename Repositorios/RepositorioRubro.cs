@@ -11,13 +11,14 @@ namespace Sistema_Gestion_de_Stock.Repositorios
     public class RepositorioRubro : IRepositorio<Rubro>
     {
         private List<Rubro> rubros = new List<Rubro>();
+        private RepositorioProducto repoProductos;
         private static readonly string carpetaDatos = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Datos");
         private string archivo = Path.Combine(carpetaDatos, "rubros.txt");
-
 
         public RepositorioRubro()
         {
             Directory.CreateDirectory(carpetaDatos);
+            repoProductos = new RepositorioProducto();
             CargarDesdeArchivo();
         }
 
@@ -41,6 +42,11 @@ namespace Sistema_Gestion_de_Stock.Repositorios
 
         public void Eliminar(int id)
         {
+            if (repoProductos.Listar().Any(p => p.IdRubro == id))
+            {
+                throw new InvalidOperationException("No se puede eliminar un rubro que tiene productos asociados.");
+            }
+
             var rubro = rubros.FirstOrDefault(r => r.IdRubro == id);
             if (rubro != null)
             {

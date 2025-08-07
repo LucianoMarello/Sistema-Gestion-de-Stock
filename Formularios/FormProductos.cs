@@ -16,12 +16,15 @@ namespace Sistema_Gestion_de_Stock.Formularios
     {
         private RepositorioProducto repoProductos;
         private RepositorioRubro repoRubros;
+        private RepositorioMovimientos repoMovimientos;
         public FormProductos()
         {
             InitializeComponent();
             repoProductos = new RepositorioProducto();
             repoRubros = new RepositorioRubro();
+            repoMovimientos = new RepositorioMovimientos();
 
+            ControlarVencimientos();
             CargarRubros();
             CargarProductos();
         }
@@ -29,9 +32,16 @@ namespace Sistema_Gestion_de_Stock.Formularios
         private void CargarRubros()
         {
             var rubros = repoRubros.Listar();
-            cmbRubros.DataSource = rubros;
+
+            cmbRubros.DataSource = new List<Rubro>(rubros);
             cmbRubros.DisplayMember = "Categoria";
             cmbRubros.ValueMember = "IdRubro";
+            cmbRubros.SelectedIndex = -1;
+
+            cmbFiltrarRubro.DataSource = new List<Rubro>(rubros); 
+            cmbFiltrarRubro.DisplayMember = "Categoria";
+            cmbFiltrarRubro.ValueMember = "IdRubro";
+            cmbFiltrarRubro.SelectedIndex = -1;
         }
 
         private void CargarProductos()
@@ -54,7 +64,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
             foreach (var p in productos)
             {
                 var rubro = repoRubros.BuscarPorId(p.IdRubro);
-                string nombreRubro = rubro != null ? rubro.Categoria: "Sin Rubro";
+                string nombreRubro = rubro != null ? rubro.Categoria : "Sin Rubro";
 
                 int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.CalcularStockTotal(), nombreRubro, p.Disponible ? "Sí" : "No");
 
@@ -75,14 +85,106 @@ namespace Sistema_Gestion_de_Stock.Formularios
                 GenerarNuevoId(),
                 txtNombre.Text,
                 txtDescripcion.Text,
-                (double)nudPrecio.Value,
+                0,
                 ((Rubro)cmbRubros.SelectedItem).IdRubro,
                 true
-                );
+            );
 
             repoProductos.Agregar(nuevo);
+
+            if (nudCantidad.Value > 0)
+            {
+                var ingreso = new Ingreso(
+                    GenerarNuevoIdMovimiento(),
+                    nuevo.IdProducto,
+                    DateTime.Now,
+                    (int)nudCantidad.Value,
+                    0, // sin proveedor
+                    chkVencimiento.Checked ? dtpVencimiento.Value : new DateTime(1900, 1, 1),
+                    (double)nudPrecio.Value
+                );
+
+                ingreso.AplicarMovimiento(nuevo);
+                repoMovimientos.Agregar(ingreso);
+                repoProductos.Modificar(nuevo);
+            }
+
             CargarProductos();
             LimpiarCampos();
+
+        }
+
+        private void FiltrarProductos()
+        {
+            string nombre = txtBuscarNombre.Text.ToLower();
+            string idTexto = txtBuscarID.Text;
+            int.TryParse(idTexto, out int id);
+
+            int? idRubro = (cmbFiltrarRubro.SelectedItem is Rubro rubroSel) ? rubroSel.IdRubro : (int?)null;
+
+            var productos = repoProductos.Listar();
+
+            if (!string.IsNullOrWhiteSpace(nombre))
+                productos = productos.Where(p => p.Nombre.ToLower().Contains(nombre)).ToList();
+
+            if (!string.IsNullOrWhiteSpace(idTexto))
+                productos = productos.Where(p => p.IdProducto == id).ToList();
+
+            if (idRubro.HasValue)
+                productos = productos.Where(p => p.IdRubro == idRubro.Value).ToList();
+
+            MostrarEnGrid(productos);
+        }
+
+        private void MostrarEnGrid(List<Producto> productos)
+        {
+            dgvProductos.Rows.Clear();
+
+            foreach (var p in productos)
+            {
+                var rubro = repoRubros.BuscarPorId(p.IdRubro);
+                string nombreRubro = rubro != null ? rubro.Categoria : "Sin Rubro";
+
+                int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.CalcularStockTotal(), nombreRubro, p.Disponible ? "Sí" : "No");
+
+                if (!p.Disponible)
+                    dgvProductos.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Gray;
+            }
+        }
+
+        private void ControlarVencimientos()
+        {
+            bool huboCambios = false;
+
+            foreach (var producto in repoProductos.Listar())
+            {
+                int stockAntes = producto.CalcularStockTotal();
+                producto.EliminarLotesVencidos();
+                int stockDespues = producto.CalcularStockTotal();
+
+                if (stockAntes != stockDespues)
+                {
+                    repoProductos.Modificar(producto);
+                    huboCambios = true;
+                }
+            }
+
+            if (huboCambios)
+            {
+                MessageBox.Show("Se eliminaron lotes vencidos y se actualizó el stock.");
+                CargarProductos();
+            }
+            else
+            {
+                MessageBox.Show("No hay lotes vencidos.");
+            }
+        }
+
+
+        private int GenerarNuevoIdMovimiento()
+        {
+            var lista = repoMovimientos.Listar();
+            return lista.Any() ? lista.Max(x => x.IdMovimiento) + 1 : 1;
         }
 
         private void btnModificarProducto_Click(object sender, EventArgs e)
@@ -98,7 +200,6 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
             producto.Nombre = txtNombre.Text;
             producto.Descripcion = txtDescripcion.Text;
-            producto.PrecioVenta = (int)nudPrecio.Value * 1.5;
             producto.IdRubro = ((Rubro)cmbRubros.SelectedItem).IdRubro;
 
             repoProductos.Modificar(producto);
@@ -139,6 +240,8 @@ namespace Sistema_Gestion_de_Stock.Formularios
             txtDescripcion.Text = producto.Descripcion;
             nudCantidad.Value = producto.CalcularStockTotal();
             nudPrecio.Value = (decimal)producto.PrecioVenta;
+            chkVencimiento.Checked = false;
+            dtpVencimiento.Value = DateTime.Today;
 
             var rubro = repoRubros.BuscarPorId(producto.IdRubro);
             if (rubro != null)
@@ -158,6 +261,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
             nudPrecio.Value = 0;
             nudCantidad.Value = 0;
             cmbRubros.SelectedIndex = -1;
+            chkVencimiento.Checked = false;
             dgvProductos.ClearSelection();
         }
 
@@ -211,6 +315,24 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
         private void chkMostrarBajas_CheckedChanged(object sender, EventArgs e)
         {
+            CargarProductos();
+        }
+
+        private void chkVencimiento_CheckedChanged(object sender, EventArgs e)
+        {
+            dtpVencimiento.Enabled = chkVencimiento.Checked;
+        }
+
+        private void btnFiltrar_Click(object sender, EventArgs e)
+        {
+            FiltrarProductos();
+        }
+
+        private void btnLimpiarFiltros_Click(object sender, EventArgs e)
+        {
+            txtBuscarNombre.Clear();
+            txtBuscarID.Clear();
+            cmbFiltrarRubro.SelectedIndex = -1;
             CargarProductos();
         }
     }

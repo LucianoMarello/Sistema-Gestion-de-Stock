@@ -10,6 +10,7 @@ namespace Sistema_Gestion_de_Stock.Utilidades
     {
         Venta,
         Merma,
-        Otro
+        Perdida,
+        Vencimiento
     }
 }

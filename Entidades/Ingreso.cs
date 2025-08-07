@@ -12,18 +12,18 @@ namespace Sistema_Gestion_de_Stock.Entidades
         public double PrecioCompra {  get; set; }
         public DateTime FechaVencimiento { get; set; }
 
-        public Ingreso(int idMovimiento, int idProducto, int cantidad, int idProveedor, DateTime fechaVencimiento, double precioCompra)
-            : base(idMovimiento, idProducto, cantidad)
+        public Ingreso(int idMovimiento, int idProducto, DateTime fecha, int cantidad, int idProveedor, DateTime fechaVencimiento, double precioCompra)
+            : base(idMovimiento, idProducto, fecha, cantidad)
         {
             IdProveedor = idProveedor;
             FechaVencimiento = fechaVencimiento;
             PrecioCompra = precioCompra;
         }
 
-        public override void AplicarMovimiento()
+        public override void AplicarMovimiento(Producto producto)
         {
-            Lote nuevoLote = new Lote(Cantidad, PrecioCompra, FechaVencimiento);
-            //hacer que busque el producto correspondiente dentro del repositorio y lo guarda en la lista
+            producto.ListaLotes.Add(new Lote(Cantidad,PrecioCompra,FechaVencimiento));
+            producto.ActualizarPrecioVentaDesdeLotes();
         }
     }
 }

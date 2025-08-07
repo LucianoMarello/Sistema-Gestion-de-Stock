@@ -80,16 +80,27 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
         private void btnEliminar_Click(object sender, EventArgs e)
         {
-            if (dgvRubros.SelectedRows.Count == 0) return;
+            if (dgvRubros.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Selecciona un rubro para eliminar.");
+                return;
+            }
 
             int id = (int)dgvRubros.SelectedRows[0].Cells["IdRubro"].Value;
 
             var confirm = MessageBox.Show("¿Seguro que desea eliminar este rubro?", "Confirmar", MessageBoxButtons.YesNo);
             if (confirm == DialogResult.Yes)
             {
-                repoRubros.Eliminar(id);
-                CargarRubros();
-                LimpiarCampos();
+                try
+                {
+                    repoRubros.Eliminar(id);
+                    CargarRubros();
+                    LimpiarCampos();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
         }
 

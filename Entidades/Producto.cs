@@ -22,13 +22,38 @@ namespace Sistema_Gestion_de_Stock.Entidades
             IdProducto = id;
             Nombre = nom;
             Descripcion = descripcion;
-            PrecioVenta = precioUnitario * 1.5;
+            PrecioVenta = precioUnitario;
             IdRubro = idRubro;
             Disponible = disponible;
             ListaLotes = new List<Lote>();
         }
 
-        //FALTAN METODOS SOBRE EL VENCIMIENTO
+        public List<Lote> LotesPorVencer()
+        {
+            int dias = 7;
+            DateTime hoy = DateTime.Today;
+            DateTime limite = hoy.AddDays(dias);
+
+            return ListaLotes
+                .Where(l => l.FechaVencimiento > hoy && l.FechaVencimiento <= limite)
+                .ToList();
+        }
+
+        public void EliminarLotesVencidos()
+        {
+            DateTime hoy = DateTime.Today;
+            ListaLotes.RemoveAll(l => l.FechaVencimiento != new DateTime(1900, 1, 1) && l.FechaVencimiento < hoy);
+            ActualizarPrecioVentaDesdeLotes();
+        }
+
+        public void ActualizarPrecioVentaDesdeLotes()
+        {
+            if (ListaLotes.Any())
+            {
+                double precioMayor = ListaLotes.Max(l => l.PrecioCompra);
+                PrecioVenta = precioMayor * 1.5;
+            }
+        }
 
         public int CalcularStockTotal()
         {

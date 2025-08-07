@@ -39,6 +39,21 @@ namespace Sistema_Gestion_de_Stock
         {
             AbrirFormulario(new FormProveedores());
         }
+
+        private void movimientosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AbrirFormulario(new FormMovimientos());
+        }
+
+        private void reportesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //menu Reportes
+        }
+
+        private void salirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Boton salir
+        }
     }
 
 }
