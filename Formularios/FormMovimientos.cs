@@ -26,12 +26,10 @@ namespace Sistema_Gestion_de_Stock.Formularios
             repoProveedores = new RepositorioProveedor();
             repoMovimientos = new RepositorioMovimientos();
 
-            repoMovimientos.CargarDesdeArchivo();
-
             CargarCombos();
             ConfigurarControles();
             ConfigurarGridMovimientos();
-            ActualizarGridMovimientos();
+            ActualizarGridMovimientos(repoMovimientos.Listar());
         }
 
         private void CargarCombos()
@@ -85,6 +83,9 @@ namespace Sistema_Gestion_de_Stock.Formularios
             dgvMovimientos.Columns.Add("Tipo", "Tipo");
             dgvMovimientos.Columns.Add("Cantidad", "Cantidad");
             dgvMovimientos.Columns.Add("Precio", "Precio");
+            dgvMovimientos.Columns[0].Width = 35;
+            dgvMovimientos.Columns[2].Width = 100;
+            dgvMovimientos.Columns[4].Width = 80;
         }
 
         private void btnRegistrarIngreso_Click(object sender, EventArgs e)
@@ -124,7 +125,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
             MessageBox.Show("Ingreso registrado correctamente.");
             LimpiarIngreso();
-            ActualizarGridMovimientos();
+            ActualizarGridMovimientos(repoMovimientos.Listar());
             RecargarCombosProductos();
         }
 
@@ -168,7 +169,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
 
             MessageBox.Show("Egreso registrado correctamente.");
             LimpiarEgreso();
-            ActualizarGridMovimientos();
+            ActualizarGridMovimientos(repoMovimientos.Listar());
             RecargarCombosProductos();
         }
 
@@ -192,19 +193,19 @@ namespace Sistema_Gestion_de_Stock.Formularios
             cmbTipoEgreso.SelectedIndex = 0;
         }
 
-        private void ActualizarGridMovimientos()
+        private void ActualizarGridMovimientos(List<Movimiento> lista)
         {
             dgvMovimientos.Rows.Clear();
 
-            foreach (var m in repoMovimientos.Listar())
+            foreach (var m in lista)
             {
                 var producto = repoProductos.BuscarPorId(m.IdProducto);
                 string nombreProducto = producto.Nombre;
                 string tipo = m is Ingreso ? "Ingreso" : $"Egreso - {((Egreso)m).Tipo}";
 
-                string precio = m is Ingreso ingreso
-                    ? ingreso.PrecioCompra.ToString("C") 
-                    : producto.PrecioVenta.ToString("C");
+                var precio = m is Ingreso ingreso
+                    ? ingreso.PrecioCompra.ToString()
+                    : producto.PrecioVenta.ToString();
 
                 dgvMovimientos.Rows.Add(m.IdMovimiento, nombreProducto, m.Fecha.ToShortDateString(), tipo, m.Cantidad, precio);
             }
@@ -257,24 +258,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
                 movimientos = movimientos.Where(m => m.Fecha <= hasta).ToList();
             }
 
-            CargarMovimientosFiltrados(movimientos);
-        }
-
-        private void CargarMovimientosFiltrados(List<Movimiento> lista)
-        {
-            dgvMovimientos.Rows.Clear();
-
-            foreach (var m in lista)
-            {
-                var producto = repoProductos.BuscarPorId(m.IdProducto);
-                string nombreProducto = producto.Nombre;
-                string tipo = m is Ingreso ? "Ingreso" : $"Egreso - {((Egreso)m).Tipo}";
-
-                string precio = m is Ingreso ingreso
-                    ? ingreso.PrecioCompra.ToString("C")
-                    : producto.PrecioVenta.ToString("C");
-                dgvMovimientos.Rows.Add(m.IdMovimiento, nombreProducto, m.Fecha.ToShortDateString(), tipo, m.Cantidad);
-            }
+            ActualizarGridMovimientos(movimientos);
         }
 
         private void btnLimpiarFiltros_Click(object sender, EventArgs e)
@@ -288,7 +272,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
             dtpHasta.Value = DateTime.Today;
             dtpHasta.Checked = false;
 
-            ActualizarGridMovimientos();
+            ActualizarGridMovimientos(repoMovimientos.Listar());
         }
     }
 }

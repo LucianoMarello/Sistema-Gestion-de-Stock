@@ -39,13 +39,6 @@ namespace Sistema_Gestion_de_Stock.Entidades
                 .ToList();
         }
 
-        public void EliminarLotesVencidos()
-        {
-            DateTime hoy = DateTime.Today;
-            ListaLotes.RemoveAll(l => l.FechaVencimiento != new DateTime(1900, 1, 1) && l.FechaVencimiento < hoy);
-            ActualizarPrecioVentaDesdeLotes();
-        }
-
         public void ActualizarPrecioVentaDesdeLotes()
         {
             if (ListaLotes.Any())

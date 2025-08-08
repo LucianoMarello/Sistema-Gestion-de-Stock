@@ -55,7 +55,7 @@ namespace Sistema_Gestion_de_Stock.Repositorios
 
         public List<Producto> Listar()
         {
-            return productos;
+            return productos.ToList();
         }
 
         public Producto BuscarPorId(int id)

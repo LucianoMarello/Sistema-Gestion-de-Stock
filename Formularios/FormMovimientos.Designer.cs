@@ -281,7 +281,7 @@
             dgvMovimientos.Location = new Point(401, 41);
             dgvMovimientos.Name = "dgvMovimientos";
             dgvMovimientos.RowHeadersWidth = 51;
-            dgvMovimientos.Size = new Size(562, 540);
+            dgvMovimientos.Size = new Size(626, 540);
             dgvMovimientos.TabIndex = 1;
             // 
             // lblMovimientos
@@ -404,13 +404,13 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(975, 593);
+            ClientSize = new Size(1039, 593);
             Controls.Add(gbFiltros);
             Controls.Add(lblMovimientos);
             Controls.Add(dgvMovimientos);
             Controls.Add(tabMovimientos);
             Name = "FormMovimientos";
-            Text = "FormMovimientos";
+            Text = "Menú Movimientos";
             tabMovimientos.ResumeLayout(false);
             tpIngreso.ResumeLayout(false);
             tpIngreso.PerformLayout();

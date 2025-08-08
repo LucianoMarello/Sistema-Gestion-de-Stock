@@ -44,7 +44,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { gestionProductosToolStripMenuItem, gestorRubrosToolStripMenuItem, gestorProveedoresToolStripMenuItem, movimientosToolStripMenuItem, reportesToolStripMenuItem, salirToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(929, 28);
+            menuStrip1.Size = new Size(1042, 28);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -94,7 +94,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(929, 651);
+            ClientSize = new Size(1042, 703);
             Controls.Add(menuStrip1);
             IsMdiContainer = true;
             MainMenuStrip = menuStrip1;

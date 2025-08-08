@@ -19,6 +19,11 @@ namespace Sistema_Gestion_de_Stock.Repositorios
             GuardarEnArchivo();
         }
 
+        public RepositorioMovimientos()
+        {
+            CargarDesdeArchivo();
+        }
+
         public List<Movimiento> Listar() => movimientos.ToList();
 
         private void GuardarEnArchivo()

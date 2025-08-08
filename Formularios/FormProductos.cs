@@ -1,5 +1,6 @@
 ﻿using Sistema_Gestion_de_Stock.Entidades;
 using Sistema_Gestion_de_Stock.Repositorios;
+using Sistema_Gestion_de_Stock.Utilidades;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,7 +39,7 @@ namespace Sistema_Gestion_de_Stock.Formularios
             cmbRubros.ValueMember = "IdRubro";
             cmbRubros.SelectedIndex = -1;
 
-            cmbFiltrarRubro.DataSource = new List<Rubro>(rubros); 
+            cmbFiltrarRubro.DataSource = new List<Rubro>(rubros);
             cmbFiltrarRubro.DisplayMember = "Categoria";
             cmbFiltrarRubro.ValueMember = "IdRubro";
             cmbFiltrarRubro.SelectedIndex = -1;
@@ -55,26 +56,15 @@ namespace Sistema_Gestion_de_Stock.Formularios
             dgvProductos.Columns.Add("PrecioVenta", "Precio Venta");
             dgvProductos.Columns.Add("Stock", "Stock");
             dgvProductos.Columns.Add("Rubro", "Rubro");
+            dgvProductos.Columns.Add("Vencimiento", "Vencimiento");
             dgvProductos.Columns.Add("Disponible", "Disponible");
+            dgvProductos.Columns[0].Width = 35;
+            dgvProductos.Columns[4].Width = 60;
 
-            bool mostrarInactivos = chkMostrarBajas.Checked;
 
-            var productos = mostrarInactivos ? repoProductos.Listar() : repoProductos.Listar().Where(p => p.Disponible);
+            var productos = repoProductos.Listar().Where(p => p.Disponible).ToList();
 
-            foreach (var p in productos)
-            {
-                var rubro = repoRubros.BuscarPorId(p.IdRubro);
-                string nombreRubro = rubro != null ? rubro.Categoria : "Sin Rubro";
-
-                int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.CalcularStockTotal(), nombreRubro, p.Disponible ? "Sí" : "No");
-
-                if (!p.Disponible)
-                {
-                    dgvProductos.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Gray;
-                }
-            }
-
-            dgvProductos.ClearSelection();
+            MostrarEnGrid(productos);
         }
 
         private void btnAgregarProducto_Click(object sender, EventArgs e)
@@ -133,7 +123,13 @@ namespace Sistema_Gestion_de_Stock.Formularios
             if (idRubro.HasValue)
                 productos = productos.Where(p => p.IdRubro == idRubro.Value).ToList();
 
-            MostrarEnGrid(productos);
+            if (!chkMostrarBajas.Checked)
+                productos = productos.Where(p => p.Disponible).ToList();
+
+            if (chkPorVencer.Checked)
+                MostrarPorVencer(productos);
+            else
+                MostrarEnGrid(productos);
         }
 
         private void MostrarEnGrid(List<Producto> productos)
@@ -144,42 +140,56 @@ namespace Sistema_Gestion_de_Stock.Formularios
             {
                 var rubro = repoRubros.BuscarPorId(p.IdRubro);
                 string nombreRubro = rubro != null ? rubro.Categoria : "Sin Rubro";
+                string vencimiento = p.ListaLotes
+                    .Where(l => l.FechaVencimiento != new DateTime(1900, 1, 1))
+                    .OrderBy(l => l.FechaVencimiento)
+                    .Select(l => l.FechaVencimiento.ToString("dd/MM/yyyy"))
+                    .FirstOrDefault() ?? "Sin vencimiento";
 
-                int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.CalcularStockTotal(), nombreRubro, p.Disponible ? "Sí" : "No");
+                int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, p.CalcularStockTotal(), nombreRubro, vencimiento, p.Disponible ? "Sí" : "No");
 
                 if (!p.Disponible)
                     dgvProductos.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Gray;
             }
+            dgvProductos.ClearSelection();
         }
 
         private void ControlarVencimientos()
         {
             bool huboCambios = false;
+            var productos = repoProductos.Listar();
+            DateTime hoy = DateTime.Today;
 
-            foreach (var producto in repoProductos.Listar())
+            foreach (var p in productos)
             {
-                int stockAntes = producto.CalcularStockTotal();
-                producto.EliminarLotesVencidos();
-                int stockDespues = producto.CalcularStockTotal();
+                var lotesVencidos = p.ListaLotes
+                    .Where(l => l.FechaVencimiento != new DateTime(1900, 1, 1) && l.FechaVencimiento < hoy)
+                    .ToList();
 
-                if (stockAntes != stockDespues)
+                foreach (var lote in lotesVencidos)
                 {
-                    repoProductos.Modificar(producto);
+                    // Crear egreso por vencimiento
+                    int nuevoIdMov = repoMovimientos.Listar().Any()
+                        ? repoMovimientos.Listar().Max(m => m.IdMovimiento) + 1
+                        : 1;
+
+                    var egresoVencimiento = new Egreso(
+                        nuevoIdMov,
+                        p.IdProducto,
+                        DateTime.Now,
+                        lote.Cantidad,
+                        TipoEgreso.Vencimiento
+                    );
+
+                    egresoVencimiento.AplicarMovimiento(p);
+
+                    repoMovimientos.Agregar(egresoVencimiento);
                     huboCambios = true;
                 }
             }
-
             if (huboCambios)
-            {
-                MessageBox.Show("Se eliminaron lotes vencidos y se actualizó el stock.");
-                CargarProductos();
-            }
-            else
-            {
-                MessageBox.Show("No hay lotes vencidos.");
-            }
+                MessageBox.Show("Se procesaron los lotes vencidos y se registraron como egresos.");
         }
-
 
         private int GenerarNuevoIdMovimiento()
         {
@@ -279,7 +289,6 @@ namespace Sistema_Gestion_de_Stock.Formularios
                 return false;
             }
 
-
             if (nudCantidad.Value < 0)
             {
                 MessageBox.Show("La cantidad no puede ser negativa.");
@@ -313,11 +322,6 @@ namespace Sistema_Gestion_de_Stock.Formularios
             btnCopiarProducto.Enabled = haySeleccion;
         }
 
-        private void chkMostrarBajas_CheckedChanged(object sender, EventArgs e)
-        {
-            CargarProductos();
-        }
-
         private void chkVencimiento_CheckedChanged(object sender, EventArgs e)
         {
             dtpVencimiento.Enabled = chkVencimiento.Checked;
@@ -333,7 +337,41 @@ namespace Sistema_Gestion_de_Stock.Formularios
             txtBuscarNombre.Clear();
             txtBuscarID.Clear();
             cmbFiltrarRubro.SelectedIndex = -1;
-            CargarProductos();
+            chkMostrarBajas.Checked = false;
+            chkPorVencer.Checked = false;
+            FiltrarProductos();
         }
+
+        private void MostrarPorVencer(List<Producto> productos)
+        {
+            DateTime hoy = DateTime.Today;
+            DateTime limite = hoy.AddDays(7);
+
+            dgvProductos.Rows.Clear();
+
+            foreach (var p in productos)
+            {
+                var lotesPorVencer = p.LotesPorVencer();
+
+                if (lotesPorVencer.Any())
+                {
+                    int cantidadPorVencer = lotesPorVencer.Sum(l => l.Cantidad);
+
+                    var rubro = repoRubros.BuscarPorId(p.IdRubro);
+                    string nombreRubro = rubro != null ? rubro.Categoria : "Sin Rubro";
+                    string vencimiento = p.ListaLotes
+                        .Where(l => l.FechaVencimiento != new DateTime(1900, 1, 1))
+                        .OrderBy(l => l.FechaVencimiento)
+                        .Select(l => l.FechaVencimiento.ToString("dd/MM/yyyy"))
+                        .FirstOrDefault() ?? "Sin vencimiento";
+
+                    int rowIndex = dgvProductos.Rows.Add(p.IdProducto, p.Nombre, p.Descripcion, p.PrecioVenta, cantidadPorVencer, nombreRubro, vencimiento, p.Disponible ? "Sí" : "No");
+
+                    if (!p.Disponible)
+                        dgvProductos.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Gray;
+                }
+            }
+        }
+
     }
 }

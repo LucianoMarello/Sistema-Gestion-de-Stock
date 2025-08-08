@@ -30,6 +30,7 @@
         {
             dgvProveedores = new DataGridView();
             gbProveedores = new GroupBox();
+            txtTelefono = new TextBox();
             btnCopiar = new Button();
             btnLimpiar = new Button();
             btnEliminar = new Button();
@@ -42,7 +43,6 @@
             txtDireccion = new TextBox();
             txtContacto = new TextBox();
             txtNombre = new TextBox();
-            txtTelefono = new TextBox();
             ((System.ComponentModel.ISupportInitialize)dgvProveedores).BeginInit();
             gbProveedores.SuspendLayout();
             SuspendLayout();
@@ -78,6 +78,13 @@
             gbProveedores.TabIndex = 1;
             gbProveedores.TabStop = false;
             gbProveedores.Text = "Datos Proveedores";
+            // 
+            // txtTelefono
+            // 
+            txtTelefono.Location = new Point(132, 139);
+            txtTelefono.Name = "txtTelefono";
+            txtTelefono.Size = new Size(205, 27);
+            txtTelefono.TabIndex = 13;
             // 
             // btnCopiar
             // 
@@ -186,13 +193,6 @@
             txtNombre.Size = new Size(205, 27);
             txtNombre.TabIndex = 0;
             // 
-            // txtTelefono
-            // 
-            txtTelefono.Location = new Point(132, 139);
-            txtTelefono.Name = "txtTelefono";
-            txtTelefono.Size = new Size(205, 27);
-            txtTelefono.TabIndex = 13;
-            // 
             // FormProveedores
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -201,7 +201,7 @@
             Controls.Add(gbProveedores);
             Controls.Add(dgvProveedores);
             Name = "FormProveedores";
-            Text = "Gestor Proveedores";
+            Text = "Menú Proveedores";
             ((System.ComponentModel.ISupportInitialize)dgvProveedores).EndInit();
             gbProveedores.ResumeLayout(false);
             gbProveedores.PerformLayout();

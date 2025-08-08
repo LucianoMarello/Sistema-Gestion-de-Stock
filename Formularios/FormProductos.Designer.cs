@@ -56,6 +56,8 @@
             lblBuscarRubro = new Label();
             btnLimpiarFiltros = new Button();
             btnFiltrar = new Button();
+            chkPorVencer = new CheckBox();
+            groupBox1 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             gbDatos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudCantidad).BeginInit();
@@ -71,7 +73,7 @@
             dgvProductos.ReadOnly = true;
             dgvProductos.RowHeadersWidth = 51;
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProductos.Size = new Size(896, 287);
+            dgvProductos.Size = new Size(917, 287);
             dgvProductos.TabIndex = 0;
             dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
             // 
@@ -264,24 +266,23 @@
             // 
             chkMostrarBajas.AutoSize = true;
             chkMostrarBajas.CheckAlign = ContentAlignment.MiddleRight;
-            chkMostrarBajas.Location = new Point(758, 310);
+            chkMostrarBajas.Location = new Point(742, 310);
             chkMostrarBajas.Name = "chkMostrarBajas";
             chkMostrarBajas.Size = new Size(131, 24);
             chkMostrarBajas.TabIndex = 18;
             chkMostrarBajas.Text = "No disponibles";
             chkMostrarBajas.UseVisualStyleBackColor = true;
-            chkMostrarBajas.CheckedChanged += chkMostrarBajas_CheckedChanged;
             // 
             // txtBuscarNombre
             // 
-            txtBuscarNombre.Location = new Point(199, 265);
+            txtBuscarNombre.Location = new Point(181, 265);
             txtBuscarNombre.Name = "txtBuscarNombre";
             txtBuscarNombre.Size = new Size(169, 27);
             txtBuscarNombre.TabIndex = 20;
             // 
             // txtBuscarID
             // 
-            txtBuscarID.Location = new Point(199, 305);
+            txtBuscarID.Location = new Point(181, 305);
             txtBuscarID.Name = "txtBuscarID";
             txtBuscarID.Size = new Size(169, 27);
             txtBuscarID.TabIndex = 21;
@@ -307,7 +308,7 @@
             // cmbFiltrarRubro
             // 
             cmbFiltrarRubro.FormattingEnabled = true;
-            cmbFiltrarRubro.Location = new Point(569, 265);
+            cmbFiltrarRubro.Location = new Point(527, 264);
             cmbFiltrarRubro.Name = "cmbFiltrarRubro";
             cmbFiltrarRubro.Size = new Size(169, 28);
             cmbFiltrarRubro.TabIndex = 20;
@@ -315,7 +316,7 @@
             // lblBuscarRubro
             // 
             lblBuscarRubro.AutoSize = true;
-            lblBuscarRubro.Location = new Point(399, 268);
+            lblBuscarRubro.Location = new Point(383, 268);
             lblBuscarRubro.Name = "lblBuscarRubro";
             lblBuscarRubro.Size = new Size(126, 20);
             lblBuscarRubro.TabIndex = 23;
@@ -323,9 +324,9 @@
             // 
             // btnLimpiarFiltros
             // 
-            btnLimpiarFiltros.Location = new Point(430, 305);
+            btnLimpiarFiltros.Location = new Point(383, 305);
             btnLimpiarFiltros.Name = "btnLimpiarFiltros";
-            btnLimpiarFiltros.Size = new Size(121, 33);
+            btnLimpiarFiltros.Size = new Size(142, 33);
             btnLimpiarFiltros.TabIndex = 20;
             btnLimpiarFiltros.Text = "Limpiar";
             btnLimpiarFiltros.UseVisualStyleBackColor = true;
@@ -333,19 +334,39 @@
             // 
             // btnFiltrar
             // 
-            btnFiltrar.Location = new Point(575, 305);
+            btnFiltrar.Location = new Point(554, 305);
             btnFiltrar.Name = "btnFiltrar";
-            btnFiltrar.Size = new Size(121, 33);
+            btnFiltrar.Size = new Size(142, 33);
             btnFiltrar.TabIndex = 24;
             btnFiltrar.Text = "Filtrar";
             btnFiltrar.UseVisualStyleBackColor = true;
             btnFiltrar.Click += btnFiltrar_Click;
             // 
+            // chkPorVencer
+            // 
+            chkPorVencer.AutoSize = true;
+            chkPorVencer.CheckAlign = ContentAlignment.MiddleRight;
+            chkPorVencer.Location = new Point(773, 268);
+            chkPorVencer.Name = "chkPorVencer";
+            chkPorVencer.Size = new Size(100, 24);
+            chkPorVencer.TabIndex = 25;
+            chkPorVencer.Text = "Por Vencer";
+            chkPorVencer.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Location = new Point(12, 244);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(895, 105);
+            groupBox1.TabIndex = 26;
+            groupBox1.TabStop = false;
+            // 
             // FormProductos
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(930, 654);
+            ClientSize = new Size(941, 654);
+            Controls.Add(chkPorVencer);
             Controls.Add(btnFiltrar);
             Controls.Add(btnLimpiarFiltros);
             Controls.Add(lblBuscarRubro);
@@ -357,8 +378,9 @@
             Controls.Add(chkMostrarBajas);
             Controls.Add(gbDatos);
             Controls.Add(dgvProductos);
+            Controls.Add(groupBox1);
             Name = "FormProductos";
-            Text = "Gestor de Productos";
+            Text = "Menú Productos";
             ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
             gbDatos.ResumeLayout(false);
             gbDatos.PerformLayout();
@@ -398,5 +420,7 @@
         private Label lblBuscarRubro;
         private Button btnLimpiarFiltros;
         private Button btnFiltrar;
+        private CheckBox chkPorVencer;
+        private GroupBox groupBox1;
     }
 }

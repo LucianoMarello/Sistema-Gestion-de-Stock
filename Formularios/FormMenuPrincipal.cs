@@ -47,12 +47,12 @@ namespace Sistema_Gestion_de_Stock
 
         private void reportesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //menu Reportes
+            AbrirFormulario(new FormReportes());
         }
 
         private void salirToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Boton salir
+            Application.Exit();
         }
     }
 
